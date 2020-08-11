@@ -18,24 +18,17 @@ namespace Generator
             DiamondSquare
         };
 
-        public enum OptimizationAlgorithm
-        {
-            None,
-            Regular,
-            Irregular
-        };
-        
         public bool delaunay;
         [Range(1, 255)] public int mapSize;
         [Range(0, 32)] public int levelOfDetail;
 
         [Range(1, 100)] public float heightMultiplier;
-        // public AnimationCurve heightCurve;
+        public AnimationCurve heightCurve;
         [Range(0.0001f, 1)] public float epsilon;
-        public bool pseudoDistance;
-        [Range(0f, 1f)] public float c;
+        //public bool pseudoDistance;
+        //[Range(0f, 1f)] public float c;
         
-        public GenerationAlgorithm generationAlgorithm;
+        public GenerationAlgorithm generationAlgorithm = GenerationAlgorithm.PerlinNoise;
         //public OptimizationAlgorithm optimizationAlgorithm
 
         public void Generate(Vector3[] heightMap)
@@ -46,12 +39,12 @@ namespace Generator
 
             if (delaunay)
             {
-                var optimizedHeightMap = RamerDuglasPeuckerAlgorithm.SimplifyMap(heightMap, epsilon, mapSize, pseudoDistance, c);
+                var optimizedHeightMap = RamerDuglasPeickerAlgorithm2D.OptimizeMap(heightMap, epsilon, mapSize);
                 var optimizedVector2Map = ExtractXZToIntVector2(optimizedHeightMap);
                 var triangulator = new Triangulator();
                 var triangles = triangulator.Triangulation(optimizedVector2Map);
                 triangulation = TriadsToTriangles(triangles, optimizedVector2Map);
-                terrainMesh = IrregularTerrainMeshGenerator.Generate(optimizedHeightMap, triangulation, heightMultiplier, mapSize);
+                terrainMesh = IrregularTerrainMeshGenerator.Generate(optimizedHeightMap, triangulation, heightMultiplier, mapSize, heightCurve);
                 terrainTexture = CreateTexture.FromHeightMap(heightMap, mapSize);
             }
             else
@@ -61,14 +54,14 @@ namespace Generator
                     case GenerationAlgorithm.PerlinNoise:
                     {
                         terrainMesh =
-                            TerrainMeshGenerator.Generate(mapSize, heightMap, heightMultiplier, levelOfDetail);
+                            TerrainMeshGenerator.Generate(mapSize, heightMap, heightMultiplier, levelOfDetail, heightCurve);
                         terrainTexture = CreateTexture.FromHeightMap(heightMap, mapSize);
                         break;
                     }
                     case GenerationAlgorithm.DiamondSquare:
                     {
                         terrainMesh =
-                            TerrainMeshGenerator.Generate(mapSize, heightMap, heightMultiplier, levelOfDetail);
+                            TerrainMeshGenerator.Generate(mapSize, heightMap, heightMultiplier, levelOfDetail, heightCurve);
                         terrainTexture = CreateTexture.FromHeightMap(heightMap, mapSize);
                         break;
                     }

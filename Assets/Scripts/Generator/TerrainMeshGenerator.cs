@@ -11,7 +11,7 @@ namespace Generator
         private static List<Vector3> vertices;
         private static List<Vector2> uvCoords;
 
-        public static Mesh Generate(int meshSize, Vector3[] heightMap, float heightMultiplier, int lod)
+        public static Mesh Generate(int meshSize, Vector3[] heightMap, float heightMultiplier, int lod, AnimationCurve heightCurve)
         {
             var detailIncrement = lod == 0 ? 1 : lod * 2;
             var verticesPerLine = (meshSize - 1) / detailIncrement + 1;
@@ -21,7 +21,7 @@ namespace Generator
             uvCoords = new List<Vector2>();
             var newMesh = new Mesh();
 
-            CreateVerts(meshSize, heightMap, heightMultiplier, detailIncrement, verticesPerLine);
+            CreateVerts(meshSize, heightMap, heightMultiplier, detailIncrement, verticesPerLine, heightCurve);
             newMesh.vertices = vertices.ToArray();
 
             CreateTris(verticesPerLine);
@@ -34,7 +34,7 @@ namespace Generator
             return newMesh;
         }
 
-        private static void CreateVerts(int meshSize, Vector3[] heightMap, float heightMultiplier, int detailIncrement, int verticesPerLine)
+        private static void CreateVerts(int meshSize, Vector3[] heightMap, float heightMultiplier, int detailIncrement, int verticesPerLine, AnimationCurve heightCurve)
         {
             /*for (var y = 0; y < meshSize; y += detailIncrement)
             {
@@ -50,7 +50,7 @@ namespace Generator
             {
                 for (var j = 0; j < verticesPerLine; j++)
                 {
-                    vertices.Add(new Vector3(heightMap[i].x, heightMap[i].y * heightMultiplier, heightMap[i].z));
+                    vertices.Add(new Vector3(heightMap[i].x, heightCurve.Evaluate(heightMap[i].y) * heightMultiplier, heightMap[i].z));
                     i += detailIncrement;
                 }
 
