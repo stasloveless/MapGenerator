@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MathCalculations
@@ -12,11 +13,11 @@ namespace MathCalculations
 
             return (float) Math.Sqrt(preDistance);
         }
-        
+
         public static float PointDistance3D(Vector3 first, Vector3 second)
         {
             var preDistance = Math.Pow(second.x - first.x, 2) +
-                              Math.Pow(second.y - first.y, 2) + 
+                              Math.Pow(second.y - first.y, 2) +
                               Math.Pow(second.z - first.z, 2);
 
             return (float) Math.Sqrt(preDistance);
@@ -57,20 +58,20 @@ namespace MathCalculations
             var ab = PointDistance2D(trianglePoints[0], trianglePoints[1]);
             var bc = PointDistance2D(trianglePoints[1], trianglePoints[2]);
             var ca = PointDistance2D(trianglePoints[2], trianglePoints[0]);
-            
+
             var halfP = (ab + ca + bc) / 2;
             var preSquare = halfP * (halfP - ab) * (halfP - bc) * (halfP - ca);
             var square = (float) Math.Sqrt(preSquare);
 
             return (ab * bc * ca) / (4 * square);
         }
-        
+
         public static float CircumCircleR(Vector2 a, Vector2 b, Vector2 c)
         {
             var ab = PointDistance2D(a, b);
             var bc = PointDistance2D(b, c);
             var ca = PointDistance2D(c, a);
-            
+
             var halfP = (ab + ca + bc) / 2;
             var preSquare = halfP * (halfP - ab) * (halfP - bc) * (halfP - ca);
             var square = (float) Math.Sqrt(preSquare);
@@ -82,7 +83,7 @@ namespace MathCalculations
         {
             var x = (first.x + second.x) / 2;
             var y = (first.y + second.y) / 2;
-            
+
             return new Vector2(x, y);
         }
 
@@ -102,6 +103,22 @@ namespace MathCalculations
             var b = second.y - k * second.x;
 
             return outerPoint.y - k * outerPoint.x - b;
+        }
+
+        public static List<int> CalculateFactors(int number)
+        {
+            var factors = new List<int>();
+
+            var max = (int) Math.Sqrt(number);
+            for (var i = 1; i <= max; i++)
+            {
+                if (number % i == 0)
+                {
+                    factors.Add(i);
+                }
+            }
+
+            return factors;
         }
     }
 }
