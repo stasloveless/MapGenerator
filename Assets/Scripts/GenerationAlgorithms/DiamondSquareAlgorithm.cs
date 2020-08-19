@@ -8,7 +8,7 @@ namespace GenerationAlgorithms
 {
     public static class DiamondSquareAlgorithm
     {
-        public static Vector3[] GenerateDiamondSquareMap(int mapSize, float roughness, int seed)
+        public static Vector3[] GenerateDiamondSquareMap(int mapSize, float roughness, int seed, float heightMultiplier, AnimationCurve heightCurve)
         {
             //TODO:проверка на квадратность и четность
             Random rnd = new Random(seed);
@@ -70,7 +70,15 @@ namespace GenerationAlgorithms
                     noiseMapVector3.Add(new Vector3(j, noiseMap[j, i], i));
                 }
             }
-            return noiseMapVector3.ToArray();
+
+            var finalNoiseMap = noiseMapVector3.ToArray();
+            
+            for (var i = 0; i < finalNoiseMap.Length; i++)
+            {
+                finalNoiseMap[i] = Utils.ChangeY(finalNoiseMap[i], heightCurve.Evaluate(finalNoiseMap[i].y) * heightMultiplier);
+            }
+            
+            return finalNoiseMap;
         }
 
         public static Tuple<int, int>[] DiamondSquareInit(int mapSize)
