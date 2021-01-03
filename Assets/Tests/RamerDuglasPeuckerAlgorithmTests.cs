@@ -28,7 +28,7 @@ namespace Tests
                 new Vector3(0, 2, 4)
             };
 
-            var result = RamerDuglasPeuckerAlgorithm.FindOrigin(extremePoints);
+            var result = RamerDuglasPeuckerAlgorithm3D.FindOrigin(extremePoints);
 
             Assert.AreEqual(expected, result);
         }
@@ -53,7 +53,7 @@ namespace Tests
                 new Vector3(5, 2, 4)
             };
 
-            var result = RamerDuglasPeuckerAlgorithm.FindExtremes(pointCloud);
+            var result = RamerDuglasPeuckerAlgorithm3D.FindExtremes(pointCloud);
 
             Assert.AreEqual(expected, result);
         }
@@ -81,7 +81,7 @@ namespace Tests
                 new Vector3(0, 1, 3),
             };
 
-            var result = RamerDuglasPeuckerAlgorithm.FindCornerPoints(pointCloud, mapSize, planeVectors);
+            var result = RamerDuglasPeuckerAlgorithm3D.FindCornerPoints(pointCloud, mapSize, planeVectors);
             
             Assert.AreEqual(expected, result);
         }

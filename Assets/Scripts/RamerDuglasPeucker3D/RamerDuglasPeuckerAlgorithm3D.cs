@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace RamerDuglasPeucker3D
 {
-    public static class RamerDuglasPeuckerAlgorithm
+    public static class RamerDuglasPeuckerAlgorithm3D
     {
         public static Vector3[] SimplifyMap(Vector3[] heightMap, float e, int mapSize, bool pseudoDistance, float c)
         {
