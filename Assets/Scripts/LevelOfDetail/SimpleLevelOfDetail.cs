@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace LevelOfDetail
 {
-    public class SimpleLevelOfDetail
+    public static class SimpleLevelOfDetail
     {
-        public static Vector3[] Optimize(int meshSize, Vector3[] heightMap, int lod)
+        public static Vector3[] Optimize(Vector3[] heightMap, int detailIncrement)
         {
-            var detailIncrement = lod == 0 ? 1 : lod * 2;
+            var meshSize = (int) Math.Sqrt(heightMap.Length);
             var verticesPerLine = (meshSize - 1) / detailIncrement + 1;
             var optimizedHeightMap = new List<Vector3>();
             
