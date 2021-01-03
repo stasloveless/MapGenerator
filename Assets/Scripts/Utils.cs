@@ -19,15 +19,8 @@ public static class Utils
         return new Vector3(v.x, v.y, z);
     }
 
-    public static float RandomFloat(float min, float max)
+    public static float RandomFloat(int min, int max, Random rnd)
     {
-        var rnd = new Random();
-        return (float) (min + rnd.NextDouble() / (max - min + 1));
-    }
-    
-    public static int RandomInt(float min, float max)
-    {
-        var rnd = new Random();
-        return Mathf.RoundToInt(min + rnd.Next() / (max - min + 1));
+        return rnd.Next(min * 10, max * 10) / 10.0f;
     }
 }
