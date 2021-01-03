@@ -57,7 +57,7 @@ namespace Editor.GeneratorEditor
                             }
                             case GeneratorInspector.Optimization.RamerDouglasPecker:
                             {
-                                var optimizedMap = RamerDouglasPeckerOptimizer.Optimize(heightMap);
+                                var optimizedMap = RamerDouglasPeckerOptimizer.Optimize(heightMap, PerlinNoiseGenerator._heightMultiplier);
                                 genInsp.Generate(optimizedMap);
                                 break;
                             }
@@ -84,7 +84,7 @@ namespace Editor.GeneratorEditor
                             }
                             case GeneratorInspector.Optimization.RamerDouglasPecker:
                             {
-                                var optimizedMap = RamerDouglasPeckerOptimizer.Optimize(heightMap);
+                                var optimizedMap = RamerDouglasPeckerOptimizer.Optimize(heightMap, DiamondSquareGenerator._heightMultiplier);
                                 genInsp.Generate(optimizedMap);
                                 break;
                             }

@@ -13,16 +13,18 @@ namespace RamerDuglasPeucker3D
     {
         //This function creates optimized point array based on received height map and epsilon (e) parameter
         //Returns Vector3 array of the points
-        public static Vector3[] OptimizeMap(Vector3[] heightMap, float e, int mapSize)
+        public static Vector3[] OptimizeMap(Vector3[] heightMap, float e, float heightMutiplier)
         {
+            var mapSize = (int) Math.Sqrt(heightMap.Length);
             var processedPointHeightMap = new List<ProcessedPoint>();
             foreach (var point in heightMap)
             {
                 processedPointHeightMap.Add(new ProcessedPoint(point));
             }
 
-            RamerDuglasPeuckerRow(processedPointHeightMap, mapSize, e);
-            RamerDuglasPeuckerColumn(processedPointHeightMap, mapSize, e);
+            var scaledEpsilon = e * heightMutiplier;
+            RamerDuglasPeuckerRow(processedPointHeightMap, mapSize, scaledEpsilon);
+            RamerDuglasPeuckerColumn(processedPointHeightMap, mapSize, scaledEpsilon);
 
             var optimizedHeightMap = SelectKeptPoints(processedPointHeightMap);
 

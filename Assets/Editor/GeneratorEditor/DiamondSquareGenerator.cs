@@ -6,7 +6,7 @@ namespace Editor.GeneratorEditor
 {
     public static class DiamondSquareGenerator
     {
-        private static float _heightMultiplier = 1;
+        public static float _heightMultiplier = 1;
         private static AnimationCurve _heightCurve =  AnimationCurve.Linear(0, 0, 1, 1);
         private static float _r = 0.6f;
         private static int _seed = 1;
