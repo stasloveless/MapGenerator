@@ -7,45 +7,51 @@ namespace Hausdorff
     {
         public static float Calculate(Vector3[] highPoly, Vector3[] lowPoly)
         {
-            float maxYX = 0;
-            float minYX = 100;
+            var maxYX = float.MinValue;
+            var minYX = float.MaxValue;
 
-            float maxXY = 0;
-            float minXY = 100;
+            var maxXY = float.MinValue;
+            var minXY = float.MaxValue;
 
             foreach (var y in highPoly)
             {
                 foreach (var x in lowPoly)
                 {
-                    if (Vector3.Distance(x, y) > maxYX)
+                    if (Vector3.Distance(x, y) < minYX)
                     {
-                        maxYX = Vector3.Distance(x, y);
+                        minYX = Vector3.Distance(x, y);
                     }
                 }
 
-                if (maxYX < minYX)
+                if (minYX > maxYX)
                 {
-                    minYX = maxYX;
+                    maxYX = minYX;
                 }
+
+                minYX = float.MaxValue;
             }
 
             foreach (var x in lowPoly)
             {
                 foreach (var y in highPoly)
                 {
-                    if (Vector3.Distance(y, x) > maxXY)
+                    if (Vector3.Distance(x, y) < minXY)
                     {
-                        maxXY = Vector3.Distance(y, x);
+                        minXY = Vector3.Distance(x, y);
                     }
                 }
 
-                if (maxXY < minXY)
+                if (minXY > maxXY)
                 {
-                    minXY = maxXY;
+                    maxXY = minXY;
                 }
+
+                minXY = float.MaxValue;
             }
 
-            return Math.Max(minXY, minYX);
+            var res = Math.Max(maxXY, maxYX);
+
+            return res;
         }
     }
 }
