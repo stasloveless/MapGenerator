@@ -6,7 +6,7 @@ namespace Editor.ExperimenterEditor
     [CustomEditor(typeof(Experimenter.Experimenter))]
     public class ExperimenterEditor : UnityEditor.Editor
     {
-        public override void OnInspectorGUI()
+        /*public override void OnInspectorGUI()
         {
             var exp = (Experimenter.Experimenter) target;
             DrawDefaultInspector();
@@ -15,6 +15,6 @@ namespace Editor.ExperimenterEditor
             {
                 exp.StartExperiment();
             }
-        }
+        }*/
     }
 }

@@ -9,8 +9,7 @@ using Random = System.Random;
 
 namespace Experimenter
 {
-    [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-    public class Experimenter : MonoBehaviour
+    public class Experimenter
     {
         private Random rnd = new Random();
         public int numberOfIterations;
@@ -80,7 +79,6 @@ namespace Experimenter
                 var rdpHausdorffDistance = HausdorffDistance.Calculate(heightMap, rdpOptimizedMap);
                 Debug.Log("Tris LOD " + levelOfDetail + ": " + n + " Hausdorff: " + lodHausdorffDistance);
                 Debug.Log("Tris RDP: " + m + " epsilon: " + epsilon + " Hausdorff: " + rdpHausdorffDistance);*/
-            }
         }
 
         /*private Vector3[] RandomPerlin()
