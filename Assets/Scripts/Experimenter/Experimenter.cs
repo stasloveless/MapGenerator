@@ -1,86 +1,98 @@
 ﻿using System;
 using GenerationAlgorithms;
 using Generator;
+using Hausdorff;
+using LevelOfDetail;
+using RamerDuglasPeucker3D;
 using UnityEngine;
 using Random = System.Random;
 
 namespace Experimenter
 {
+    [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public class Experimenter : MonoBehaviour
     {
         private Random rnd = new Random();
         public int numberOfIterations;
         public int mapSize;
+        public int levelOfDetail;
 
-        public AnimationCurve heightCurve;
+        public AnimationCurve heightCurve = AnimationCurve.Linear(0, 0, 10, 10);
 
-        public void Start()
+        public void StartExperiment()
         {
-            //0 - Perlin, 1 - DiamondSquare
-            var algorithmId = Utils.RandomInt(0, 1);
-            var levelOfDetail = 0;
-
-            switch (algorithmId)
+            /*Random rnd = new Random();
+            
+            for (var i = 1; i <= numberOfIterations; i++)
             {
-                case 0:
-                {
-                    for (var i = 0; i < numberOfIterations; i++)
-                    {
-                        //This will be our highPoly
-                        var heightMap = RandomPerlin();
-                        var mapGen = new MapGenerator(mapSize, levelOfDetail, heightMap);
-                        var terrainMesh = mapGen.GenerateMesh(false, 0.0f);
-                        
-                        //Lets calc Hausdorff for all LOD levels
-                        for (var j = 0; j < 5; j++)
-                        {
-                            //var optimizedMap = LODOptimizatorFunction();
-                            //add to log number of tris and hausdorff dist
-                        }
+                Debug.Log("Number: " + i);
+                var heightMultiplier = Utils.RandomFloat(10, 30, rnd);
+                //var heightMultiplier = 30.0f;
+                Debug.Log("Height multiplier: " + heightMultiplier);
+                var noiseScale = Utils.RandomFloat(2, 50, rnd);
+                //var noiseScale = 10.0f;
+                Debug.Log("Noise scale: " + noiseScale);
+                
+                //This will be our highPoly
+                var heightMap = PerlinNoiseAlgorithm.GeneratePerlinNoise(mapSize, noiseScale, 1,
+                    1, 1, heightMultiplier, heightCurve);
 
-                        Debug.Log("Tris HP: " + terrainMesh.triangles.Length / 3);
-                        //Output log with lods
-                        
-                        //Next must be RDP/D maps with the same num of tris 
+                var highPolyMesh = new MapGenerator(mapSize, heightMap);
+                var terrainMesh = highPolyMesh.GenerateRegularMesh(GeneratorInspector.Optimization.None);
+                Debug.Log("Tris HP: " + terrainMesh.triangles.Length / 3);
 
-                    }
-                    break;
-                }
-                case 1:
+                //Lets calc Hausdorff for LOD level
+                var factors = MathCalculations.MathCalculations.CalculateFactors(mapSize - 1);
+                var lodOptimizedMap = SimpleLevelOfDetail.Optimize(heightMap, factors[levelOfDetail]);
+                var lodMesh = new MapGenerator(mapSize, lodOptimizedMap);
+                var lodOptimizedTerrainMesh = lodMesh.GenerateRegularMesh(GeneratorInspector.Optimization.LevelOfDetail);
+
+                var n = lodOptimizedTerrainMesh.triangles.Length / 3;
+                var epsilon = 0.05f;
+                var m = 0;
+                var step = epsilon;
+                Vector3[] rdpOptimizedMap;
+
+                do
                 {
-                    for (var i = 0; i < numberOfIterations; i++)
+                    rdpOptimizedMap = RamerDuglasPeickerAlgorithm2D.OptimizeMap(heightMap, epsilon, heightMultiplier);
+                    var rdpGen = new MapGenerator(mapSize, rdpOptimizedMap);
+                    var rdpOptimizedTerrainMesh =
+                        rdpGen.GenerateRegularMesh(GeneratorInspector.Optimization.RamerDouglasPecker);
+                    m = rdpOptimizedTerrainMesh.triangles.Length / 3;
+                    step /= 2;
+                    if (m > n)
                     {
-                        //This will be our highPoly
-                        var heightMap = RandomDiamondSquare();
-                        var mapGen = new MapGenerator(mapSize, levelOfDetail, heightMap);
-                        var terrainMesh = mapGen.GenerateMesh(false, 0.0f);
+                        epsilon += step;
                     }
-                    break;
-                }
-                default:
-                    throw new ArgumentOutOfRangeException();
+                    else if(m < n)
+                    {
+                        epsilon -= step;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                } while (/*Math.Abs(m - n) > 0 ||#1# step >= 1e-6);
+
+                //Output Hausdorff and number of tris
+                var lodHausdorffDistance = HausdorffDistance.Calculate(heightMap, lodOptimizedMap);
+                var rdpHausdorffDistance = HausdorffDistance.Calculate(heightMap, rdpOptimizedMap);
+                Debug.Log("Tris LOD " + levelOfDetail + ": " + n + " Hausdorff: " + lodHausdorffDistance);
+                Debug.Log("Tris RDP: " + m + " epsilon: " + epsilon + " Hausdorff: " + rdpHausdorffDistance);*/
             }
         }
 
-        private Vector3[] RandomPerlin()
+        /*private Vector3[] RandomPerlin()
         {
-            var heightMultiplier =  Utils.RandomFloat(1, 50);
-            var noiseScale = Utils.RandomFloat(1, 50);
-            var octaves = Utils.RandomInt(1, 10);
-            var lacunarity = Utils.RandomFloat(1, 50);
-            var persistence = Utils.RandomFloat(1, 50);
-            
-            return PerlinNoiseAlgorithm.GeneratePerlinNoise(mapSize, noiseScale, octaves,
-                lacunarity, persistence, heightMultiplier, heightCurve);
-        }
-        
-        private Vector3[] RandomDiamondSquare()
-        {
-            var heightMultiplier =  Utils.RandomFloat(1, 50);
-            var r = Utils.RandomFloat(0, 1);
-            var seed = Utils.RandomInt(1, 30);
-            
-            return DiamondSquareAlgorithm.GenerateDiamondSquareMap(mapSize, r, seed, heightMultiplier, heightCurve);
-        }
+            var heightMultiplier = Utils.RandomFloat(10, 50, rnd);
+            var noiseScale = Utils.RandomFloat(2, 50, rnd);
+            //var octaves = rnd.Next(1, 10);
+            //var lacunarity = Utils.RandomFloat(1, 50);
+            //var persistence = Utils.RandomFloat(1, 50);
+
+            return PerlinNoiseAlgorithm.GeneratePerlinNoise(mapSize, noiseScale, 1,
+                1, 1, heightMultiplier, heightCurve);
+        }*/
     }
 }

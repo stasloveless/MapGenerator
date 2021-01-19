@@ -1,6 +1,5 @@
 ﻿using UnityEditor;
 using UnityEngine;
-using Experimenter;
 
 namespace Editor.ExperimenterEditor
 {
@@ -14,7 +13,7 @@ namespace Editor.ExperimenterEditor
 
             if (GUILayout.Button("Start"))
             {
-                exp.Start();
+                exp.StartExperiment();
             }
         }
     }
