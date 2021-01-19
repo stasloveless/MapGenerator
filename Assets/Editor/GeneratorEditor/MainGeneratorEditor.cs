@@ -14,6 +14,7 @@ namespace Editor.GeneratorEditor
             DiamondSquare,
             None
         }
+
         public enum Optimization
         {
             None,
@@ -31,19 +32,35 @@ namespace Editor.GeneratorEditor
 
         public override void OnInspectorGUI()
         {
-            var mapGen = (MapGenerator) target;
-            generationAlgorithm = (GenerationAlgorithm)EditorGUILayout.EnumPopup("Generation Algorithm",generationAlgorithm);
+            DrawCustomInspector();
+
+            if (GUILayout.Button("Generate"))
+            {
+                StartGenerating();
+            }
+        }
+
+        private void DrawCustomInspector()
+        {
+            generationAlgorithm =
+                (GenerationAlgorithm) EditorGUILayout.EnumPopup("Generation Algorithm", generationAlgorithm);
             importHeightMap = EditorGUILayout.Toggle("Import Height Map", importHeightMap);
-            optimizationMethod = (Optimization)EditorGUILayout.EnumPopup("Optimization Algorithm",optimizationMethod);
+            optimizationMethod = (Optimization) EditorGUILayout.EnumPopup("Optimization Algorithm", optimizationMethod);
             mapSize = Mathf.RoundToInt(EditorGUILayout.Slider("Map size", mapSize, 1, 255));
 
             if (importHeightMap)
             {
                 generationAlgorithm = GenerationAlgorithm.None;
-                externalHeightMap = (Texture2D) EditorGUILayout.ObjectField("Height Map", externalHeightMap, typeof(Texture2D), false);
-
+                externalHeightMap =
+                    (Texture2D) EditorGUILayout.ObjectField("Height Map", externalHeightMap, typeof(Texture2D), false);
             }
 
+            SetGenerationAlgorithmUI();
+            SetOptimizationAlgorithmUI();
+        }
+
+        private void SetGenerationAlgorithmUI()
+        {
             switch (generationAlgorithm)
             {
                 case GenerationAlgorithm.PerlinNoise:
@@ -58,7 +75,10 @@ namespace Editor.GeneratorEditor
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
 
+        private void SetOptimizationAlgorithmUI()
+        {
             switch (optimizationMethod)
             {
                 case Optimization.LevelOfDetail:
@@ -73,66 +93,71 @@ namespace Editor.GeneratorEditor
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
 
-            if (GUILayout.Button("Generate"))
+        private void StartGenerating()
+        {
+            var mapGen = (MapGenerator) target;
+
+            switch (generationAlgorithm)
             {
-                switch (generationAlgorithm)
+                case GenerationAlgorithm.PerlinNoise:
                 {
-                    case GenerationAlgorithm.PerlinNoise:
+                    var heightMap = PerlinNoiseGenerator.Generate(mapSize);
+                    switch (optimizationMethod)
                     {
-                        var heightMap = PerlinNoiseGenerator.Generate(mapSize);
-                        switch (optimizationMethod)
+                        case Optimization.LevelOfDetail:
                         {
-                            case Optimization.LevelOfDetail:
-                            {
-                                var optimizedMap = LevelOfDetailOptimizer.Optimize(heightMap);
-                                mapGen.GenerateRegularMesh(optimizedMap);
-                                break;
-                            }
-                            case Optimization.RamerDouglasPecker:
-                            {
-                                var optimizedMap = RamerDouglasPeckerOptimizer.Optimize(heightMap, PerlinNoiseGenerator._heightMultiplier);
-                                mapGen.GenerateIrregularMesh(optimizedMap, mapSize);
-                                break;
-                            }
-                            case Optimization.None:
-                            {
-                                mapGen.GenerateRegularMesh(heightMap);
-                                break;
-                            }
+                            var optimizedMap = LevelOfDetailOptimizer.Optimize(heightMap);
+                            mapGen.GenerateRegularMesh(optimizedMap);
+                            break;
                         }
-
-                        break;
+                        case Optimization.RamerDouglasPecker:
+                        {
+                            var optimizedMap =
+                                RamerDouglasPeckerOptimizer.Optimize(heightMap, PerlinNoiseGenerator._heightMultiplier);
+                            mapGen.GenerateIrregularMesh(optimizedMap, mapSize);
+                            break;
+                        }
+                        case Optimization.None:
+                        {
+                            mapGen.GenerateRegularMesh(heightMap);
+                            break;
+                        }
                     }
 
-                    case GenerationAlgorithm.DiamondSquare:
-                    {
-                        var heightMap= DiamondSquareGenerator.Generate(mapSize);
-                        switch (optimizationMethod)
-                        {
-                            case Optimization.LevelOfDetail:
-                            {
-                                var optimizedMap = LevelOfDetailOptimizer.Optimize(heightMap);
-                                mapGen.GenerateRegularMesh(optimizedMap);
-                                break;
-                            }
-                            case Optimization.RamerDouglasPecker:
-                            {
-                                var optimizedMap = RamerDouglasPeckerOptimizer.Optimize(heightMap, DiamondSquareGenerator._heightMultiplier);
-                                mapGen.GenerateIrregularMesh(optimizedMap, mapSize);
-                                break;
-                            }
-                            case Optimization.None:
-                            {
-                                mapGen.GenerateRegularMesh(heightMap);
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    break;
                 }
+
+                case GenerationAlgorithm.DiamondSquare:
+                {
+                    var heightMap = DiamondSquareGenerator.Generate(mapSize);
+                    switch (optimizationMethod)
+                    {
+                        case Optimization.LevelOfDetail:
+                        {
+                            var optimizedMap = LevelOfDetailOptimizer.Optimize(heightMap);
+                            mapGen.GenerateRegularMesh(optimizedMap);
+                            break;
+                        }
+                        case Optimization.RamerDouglasPecker:
+                        {
+                            var optimizedMap = RamerDouglasPeckerOptimizer.Optimize(heightMap,
+                                DiamondSquareGenerator._heightMultiplier);
+                            mapGen.GenerateIrregularMesh(optimizedMap, mapSize);
+                            break;
+                        }
+                        case Optimization.None:
+                        {
+                            mapGen.GenerateRegularMesh(heightMap);
+                            break;
+                        }
+                    }
+
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }
