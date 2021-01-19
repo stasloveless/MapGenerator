@@ -8,50 +8,42 @@ using UnityEngine;
 
 namespace Generator
 {
-    public class MapGenerator
+    [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
+    public class MapGenerator : MonoBehaviour
     {
-        public int mapSize;
-        public Vector3[] heightMap;
-
-        public MapGenerator(int mapSize, Vector3[] heightMap)
+        public Mesh GenerateRegularMesh(Vector3[] heightMap)
         {
-            this.mapSize = mapSize;
-            this.heightMap = heightMap;
-        }
+            //Texture2D terrainTexture;
+            //terrainTexture = GenerateTexture();
 
-        public Mesh GenerateMesh(GeneratorInspector.Optimization optimizationMethod)
-        {
-            Mesh terrainMesh;
-            
-            switch (optimizationMethod)
-            {
-                case GeneratorInspector.Optimization.LevelOfDetail:
-                {
-                    terrainMesh = TerrainMeshGenerator.Generate(heightMap);
-                    break;
-                }
-                case GeneratorInspector.Optimization.RamerDouglasPecker:
-                {
-                    var optimizedVector2Map = ExtractXZToIntVector2(heightMap);
-                    var triangulator = new Triangulator();
-                    var triangles = triangulator.Triangulation(optimizedVector2Map);
-                    var triangulation = TriadsToTriangles(triangles, optimizedVector2Map);
-                    terrainMesh = IrregularTerrainMeshGenerator.Generate(heightMap, triangulation, mapSize);
-                    break;
-                }
-                case GeneratorInspector.Optimization.None:
-                {
-                    terrainMesh = TerrainMeshGenerator.Generate(heightMap);
-                    break;
-                }
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-            
+            var terrainMesh = TerrainMeshGenerator.Generate(heightMap);
+
+            terrainMesh.name = "Procedural map";
+            //GetComponent<MeshRenderer>().sharedMaterial.mainTexture = terrainTexture;
+            GetComponent<MeshFilter>().mesh = terrainMesh;
+            GetComponent<MeshCollider>().sharedMesh = terrainMesh;
+
             return terrainMesh;
         }
 
-        public Texture2D GenerateTexture()
+        public Mesh GenerateIrregularMesh(Vector3[] heightMap, int mapSize)
+        {
+            var optimizedVector2Map = ExtractXZToIntVector2(heightMap);
+            var triangulator = new Triangulator();
+            var triangles = triangulator.Triangulation(optimizedVector2Map);
+            var triangulation = TriadsToTriangles(triangles, optimizedVector2Map);
+            
+            var terrainMesh = IrregularTerrainMeshGenerator.Generate(heightMap, triangulation, mapSize);
+
+            terrainMesh.name = "Procedural map";
+            //GetComponent<MeshRenderer>().sharedMaterial.mainTexture = terrainTexture;
+            GetComponent<MeshFilter>().mesh = terrainMesh;
+            GetComponent<MeshCollider>().sharedMesh = terrainMesh;
+
+            return terrainMesh;
+        }
+
+        public Texture2D GenerateTexture(Vector3[] heightMap)
         {
             return CreateTexture.FromHeightMap(heightMap);
         }
@@ -81,7 +73,7 @@ namespace Generator
             return result.ToArray();
         }
 
-        public static List<Vector2> ExtractXZToIntVector2(Vector3[] array)
+        private static List<Vector2> ExtractXZToIntVector2(Vector3[] array)
         {
             return array.Select(element => new Vector2(element.x, element.z)).ToList();
         }

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Editor.GeneratorEditor
 {
-    [CustomEditor(typeof(GeneratorInspector))]
+    [CustomEditor(typeof(MapGenerator))]
     public class MainGeneratorEditor : UnityEditor.Editor
     {
         public enum GenerationAlgorithm
@@ -31,7 +31,7 @@ namespace Editor.GeneratorEditor
 
         public override void OnInspectorGUI()
         {
-            var genInsp = (GeneratorInspector) target;
+            var mapGen = (MapGenerator) target;
             generationAlgorithm = (GenerationAlgorithm)EditorGUILayout.EnumPopup("Generation Algorithm",generationAlgorithm);
             importHeightMap = EditorGUILayout.Toggle("Import Height Map", importHeightMap);
             optimizationMethod = (Optimization)EditorGUILayout.EnumPopup("Optimization Algorithm",optimizationMethod);
@@ -43,8 +43,6 @@ namespace Editor.GeneratorEditor
                 externalHeightMap = (Texture2D) EditorGUILayout.ObjectField("Height Map", externalHeightMap, typeof(Texture2D), false);
 
             }
-            
-            //DrawDefaultInspector();
 
             switch (generationAlgorithm)
             {
@@ -64,7 +62,7 @@ namespace Editor.GeneratorEditor
             switch (optimizationMethod)
             {
                 case Optimization.LevelOfDetail:
-                    LevelOfDetailOptimizer.Draw(genInsp.mapSize);
+                    LevelOfDetailOptimizer.Draw(mapSize);
                     break;
                 case Optimization.RamerDouglasPecker:
                     RamerDouglasPeckerOptimizer.Draw();
@@ -82,24 +80,24 @@ namespace Editor.GeneratorEditor
                 {
                     case GenerationAlgorithm.PerlinNoise:
                     {
-                        var heightMap = PerlinNoiseGenerator.Generate(genInsp.mapSize);
+                        var heightMap = PerlinNoiseGenerator.Generate(mapSize);
                         switch (optimizationMethod)
                         {
                             case Optimization.LevelOfDetail:
                             {
                                 var optimizedMap = LevelOfDetailOptimizer.Optimize(heightMap);
-                                genInsp.Generate(optimizedMap);
+                                mapGen.GenerateRegularMesh(optimizedMap);
                                 break;
                             }
                             case Optimization.RamerDouglasPecker:
                             {
                                 var optimizedMap = RamerDouglasPeckerOptimizer.Optimize(heightMap, PerlinNoiseGenerator._heightMultiplier);
-                                genInsp.Generate(optimizedMap);
+                                mapGen.GenerateIrregularMesh(optimizedMap, mapSize);
                                 break;
                             }
                             case Optimization.None:
                             {
-                                genInsp.Generate(heightMap);
+                                mapGen.GenerateRegularMesh(heightMap);
                                 break;
                             }
                         }
@@ -109,24 +107,24 @@ namespace Editor.GeneratorEditor
 
                     case GenerationAlgorithm.DiamondSquare:
                     {
-                        var heightMap= DiamondSquareGenerator.Generate(genInsp.mapSize);
+                        var heightMap= DiamondSquareGenerator.Generate(mapSize);
                         switch (optimizationMethod)
                         {
                             case Optimization.LevelOfDetail:
                             {
                                 var optimizedMap = LevelOfDetailOptimizer.Optimize(heightMap);
-                                genInsp.Generate(optimizedMap);
+                                mapGen.GenerateRegularMesh(optimizedMap);
                                 break;
                             }
                             case Optimization.RamerDouglasPecker:
                             {
                                 var optimizedMap = RamerDouglasPeckerOptimizer.Optimize(heightMap, DiamondSquareGenerator._heightMultiplier);
-                                genInsp.Generate(optimizedMap);
+                                mapGen.GenerateIrregularMesh(optimizedMap, mapSize);
                                 break;
                             }
                             case Optimization.None:
                             {
-                                genInsp.Generate(heightMap);
+                                mapGen.GenerateRegularMesh(heightMap);
                                 break;
                             }
                         }
